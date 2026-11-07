@@ -14,5 +14,5 @@ custom_domain = true
 
 [vars]
 APNS_TEAM_ID = "6TVZ6QN944"            # GrubBux LLC
-APNS_KEY_ID = "SET-ME"                 # from the APNs key Josh creates; not a secret
+APNS_KEY_ID = "JUKF9D2N8Q"                 # from the APNs key Josh creates; not a secret
 APNS_TOPIC = "com.joshstrange.heeler"
