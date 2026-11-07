@@ -11,6 +11,7 @@ TEAM=6TVZ6QN944                      # GrubBux LLC
 OLD=dev.bybee.heeler
 NEW=com.joshstrange.heeler
 NAME="Heeler J"                      # home-screen name, to tell it from TestFlight's
+RELAY=https://heeler-apns.joshstrange.com   # relay/wrangler.josh.toml; signs for $NEW
 
 # project.yml: team, bundle IDs, app group, display name.
 sed -i '' \
@@ -29,6 +30,11 @@ for f in Sources/Heeler/Heeler.entitlements \
   sed -i '' "s/group\.$OLD\.shared/group.$NEW.shared/" "$f"
 done
 
+# Default Push Relay. The app writes this into each Host's notify.json, so the
+# Host Helper follows it; the official relay can only sign for upstream's ID.
+sed -i '' -E "s#(static let productionBaseURLString = )\"[^\"]*\"#\\1\"$RELAY\"#" \
+  Sources/Heeler/Notifications/NotificationRelayEndpoint.swift
+
 # Fail loudly if upstream moved something this script expects to change.
 left=$(grep -nE "9VM4RM39R3|PRODUCT_BUNDLE_IDENTIFIER: $OLD|group\.$OLD" project.yml \
   Sources/*/*.entitlements Sources/HeelerNotificationCore/NotificationKeyStore.swift || true)
@@ -38,4 +44,6 @@ if [ -n "$left" ]; then
   exit 1
 fi
 grep -q "CFBundleDisplayName: $NAME" project.yml || { echo "apply-identity: display name not set" >&2; exit 1; }
+grep -q "productionBaseURLString = \"$RELAY\"" Sources/Heeler/Notifications/NotificationRelayEndpoint.swift \
+  || { echo "apply-identity: relay default not set" >&2; exit 1; }
 echo "apply-identity: $NEW on team $TEAM"
