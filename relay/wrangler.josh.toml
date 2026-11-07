@@ -1,0 +1,18 @@
+# Josh's own Push Relay for the self-built Heeler (com.joshstrange.heeler).
+# Kept beside upstream's wrangler.toml so a rebase never conflicts with it.
+# Deploy:  npx wrangler deploy -c wrangler.josh.toml
+# Secret:  npx wrangler secret put APNS_KEY_P8 -c wrangler.josh.toml   (Josh runs this himself)
+# In the app: Settings > Notifications > custom relay URL = https://heeler-apns.joshstrange.com
+name = "heeler-push-relay-josh"
+main = "src/worker.js"
+compatibility_date = "2026-07-01"
+workers_dev = false
+
+[[routes]]
+pattern = "heeler-apns.joshstrange.com"
+custom_domain = true
+
+[vars]
+APNS_TEAM_ID = "6TVZ6QN944"            # GrubBux LLC
+APNS_KEY_ID = "SET-ME"                 # from the APNs key Josh creates; not a secret
+APNS_TOPIC = "com.joshstrange.heeler"

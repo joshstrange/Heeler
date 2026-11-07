@@ -4,7 +4,7 @@ import Foundation
 /// the settings surface. The plugin carries the same value as its runtime
 /// default; changing the production endpoint requires updating both sides.
 enum NotificationRelayEndpoint {
-    static let productionBaseURLString = "https://heeler-apns.bybee.dev"
+    static let productionBaseURLString = "https://heeler-apns.joshstrange.com"
 
     /// Endpoints that shipped as the production default before. Treat them as
     /// the default rather than a custom override so existing installations
