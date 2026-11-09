@@ -3,8 +3,8 @@
 #   1. fetch ZingerLittleBee/Heeler, mirror its main to origin/main
 #   2. rebase the `josh` branch onto it (identity-file conflicts resolve
 #      themselves by taking upstream's file and re-running apply-identity.sh)
-#   3. build, and install on the iPhone; when it is not reachable, leave
-#      install-when-ready.sh waiting for it in the background
+#   3. build, and install on the iPhone; when it is not reachable and
+#      unlocked, leave install-when-ready.sh waiting for it in the background
 #   4. push `josh` to origin
 # Exit codes: 0 done or already current, 2 needs a human (dirty tree, a
 # conflict outside the identity files, or a failed build).
