@@ -30,7 +30,7 @@ notify() {
 [ -d "$APP" ] || { say "no build at $APP"; exit 1; }
 
 available() {
-  xcrun devicectl list devices 2>/dev/null | grep "$DEVICE" | grep -q 'available'
+  xcrun devicectl list devices 2>/dev/null | grep "$DEVICE" | grep -Eq 'available|connected'
 }
 
 try_install() {

@@ -78,7 +78,7 @@ if [ -f build/josh-install.pid ]; then
   fi
   rm -f build/josh-install.pid
 fi
-if xcrun devicectl list devices 2>/dev/null | grep "$DEVICE" | grep -q 'available'; then
+if xcrun devicectl list devices 2>/dev/null | grep "$DEVICE" | grep -Eq 'available|connected'; then
   say "building for $DEVICE (log: $LOG)"
   make build-device DEVICE="$DEVICE" >"$LOG" 2>&1 || { tail -30 "$LOG"; stop "build failed"; }
 else
