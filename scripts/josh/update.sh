@@ -1,9 +1,10 @@
 #!/bin/sh
-# Weekly upstream sync for Josh's Heeler fork.
+# Daily upstream sync for Josh's Heeler fork.
 #   1. fetch ZingerLittleBee/Heeler, mirror its main to origin/main
 #   2. rebase the `josh` branch onto it (identity-file conflicts resolve
 #      themselves by taking upstream's file and re-running apply-identity.sh)
-#   3. build, and install on the iPhone when it is reachable
+#   3. build, and install on the iPhone; when it is not reachable, leave
+#      install-when-ready.sh waiting for it in the background
 #   4. push `josh` to origin
 # Exit codes: 0 done or already current, 2 needs a human (dirty tree, a
 # conflict outside the identity files, or a failed build).
@@ -68,17 +69,30 @@ if [ -n "$(git status --porcelain --untracked-files=no -- $IDENTITY_FILES)" ]; t
 fi
 
 mkdir -p build
+INSTALL_LOG=build/josh-install.log
+# An older waiter must not install the app this run is about to rebuild.
+if [ -f build/josh-install.pid ]; then
+  pid=$(cat build/josh-install.pid)
+  if ps -p "$pid" -o command= 2>/dev/null | grep -q install-when-ready; then
+    kill "$pid" && say "stopped an older install waiter"
+  fi
+  rm -f build/josh-install.pid
+fi
 if xcrun devicectl list devices 2>/dev/null | grep "$DEVICE" | grep -q 'available'; then
-  say "building and installing on $DEVICE (log: $LOG)"
-  make install DEVICE="$DEVICE" APP_ID="$APP_ID" >"$LOG" 2>&1 || { tail -30 "$LOG"; stop "build or install failed"; }
-  installed=yes
+  say "building for $DEVICE (log: $LOG)"
+  make build-device DEVICE="$DEVICE" >"$LOG" 2>&1 || { tail -30 "$LOG"; stop "build failed"; }
 else
-  say "iPhone not reachable; build only (log: $LOG)"
+  say "iPhone not reachable; generic device build (log: $LOG)"
   make generate >"$LOG" 2>&1
   xcodebuild -project Heeler.xcodeproj -scheme Heeler -configuration Debug \
     -destination 'generic/platform=iOS' -derivedDataPath build/DerivedData-device \
     -allowProvisioningUpdates build >>"$LOG" 2>&1 || { tail -30 "$LOG"; stop "build failed"; }
-  installed=no
+fi
+if DEVICE="$DEVICE" scripts/josh/install-when-ready.sh --once >>"$LOG" 2>&1; then
+  installed=yes
+else
+  DEVICE="$DEVICE" nohup scripts/josh/install-when-ready.sh >>"$INSTALL_LOG" 2>&1 </dev/null &
+  installed="waiting for the iPhone in the background (log: $INSTALL_LOG)"
 fi
 git checkout -q -- Heeler.xcodeproj 2>/dev/null || true
 
