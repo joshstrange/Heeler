@@ -9,17 +9,18 @@
 # The phone answers over Wi-Fi while locked, but an install sent to a locked
 # phone puts a passcode prompt on its screen, so this waits until the phone is
 # reachable and unlocked. Reading the lock state shows nothing on the phone.
-# A failed install is retried on the next poll. An install replaces Heeler
-# while it runs, so the relaunch brings it straight back. update.sh starts
+# A failed install is retried on the next poll. An install closes Heeler if
+# it is running, and it stays closed until Josh opens it. A poll costs about
+# 0.1s of Mac CPU, and the lock-state read runs only while the phone is
+# reachable, so polling every few seconds stays light. update.sh starts
 # the waiting form in the background and stops any older waiter before it
 # builds, so a waiter never installs a half-built app. A waiting run posts a Mac notification when it finishes.
 set -u
 cd "$(dirname "$0")/../.."
 
 DEVICE=${DEVICE:-00008160-000A586102C0000A}   # Josh Strange's iPhone Duo
-APP_ID=com.joshstrange.heeler
 APP=${APP:-build/DerivedData-device/Build/Products/Debug-iphoneos/Heeler.app}
-POLL=${POLL:-60}
+POLL=${POLL:-10}
 MAX_WAIT=${MAX_WAIT:-43200}   # 12 hours
 PIDFILE=build/josh-install.pid
 
@@ -42,11 +43,7 @@ try_install() {
   available || return 1
   unlocked || return 1
   xcrun devicectl device install app --device "$DEVICE" "$APP" || return 1
-  if xcrun devicectl device process launch --terminate-existing --device "$DEVICE" "$APP_ID" >/dev/null 2>&1; then
-    say "installed and relaunched"
-  else
-    say "installed; the relaunch was refused, so Heeler opens fresh next time"
-  fi
+  say "installed"
   return 0
 }
 
