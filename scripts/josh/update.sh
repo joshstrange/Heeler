@@ -11,7 +11,7 @@
 set -eu
 cd "$(dirname "$0")/../.."
 
-DEVICE=${DEVICE:-00008160-000A586102C0000A}   # Josh Strange's iPhone Duo
+DEVICE=${DEVICE:-00008150-00120CD12E88401C}   # Josh Strange's iPhone 17 Pro Max
 APP_ID=com.joshstrange.heeler
 LOG=${LOG:-build/josh-update.log}
 IDENTITY_FILES="project.yml Sources/Heeler/Heeler.entitlements
