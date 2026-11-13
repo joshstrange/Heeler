@@ -18,7 +18,7 @@
 set -u
 cd "$(dirname "$0")/../.."
 
-DEVICE=${DEVICE:-00008160-000A586102C0000A}   # Josh Strange's iPhone Duo
+DEVICE=${DEVICE:-00008150-00120CD12E88401C}   # Josh Strange's iPhone 17 Pro Max
 APP=${APP:-build/DerivedData-device/Build/Products/Debug-iphoneos/Heeler.app}
 POLL=${POLL:-10}
 MAX_WAIT=${MAX_WAIT:-43200}   # 12 hours
